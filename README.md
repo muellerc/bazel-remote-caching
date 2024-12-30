@@ -48,4 +48,21 @@ Now let's execute the Bazel build again, but this time we also provide the `--re
 bazel build --remote_cache=http://localhost:9090 //:hello-world
 ```
 
-When running it the first time, we will see a couple HTTP GET 404 (cache miss)
+When running it the first time, we will see a couple HTTP GET 404 (cache miss), followed by a couple HTTP PUT 200 (populating the cache with the build artifacts).
+When running it again after cleaning the workspace, you should only see HTTP GET 200 (cache hit). You can ignore the GRPC related requests for our purpose.
+Your log output should look like the following one:
+```txt
+INFO: Invocation ID: 08b718f5-d9bb-4186-bc1a-e6015f1c17a4
+INFO: Analyzed target //:hello-world (96 packages loaded, 1670 targets configured).
+INFO: From Building libmessenger-lib.jar (1 source file):
+INFO: From Building hello-world.jar (1 source file):
+INFO: Found 1 target...
+Target //:hello-world up-to-date:
+  bazel-bin/hello-world
+  bazel-bin/hello-world.jar
+INFO: Elapsed time: 0.323s, Critical Path: 0.04s
+INFO: 10 processes: 5 remote cache hit, 5 internal.
+INFO: Build completed successfully, 10 total actions
+```
+
+Note the `5 remote cache hit` in the log output. The build time could be reduced by about 80%!
